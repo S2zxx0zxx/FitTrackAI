@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import foodData from '../data/foodData.json';
+import decimal from '../utils/decimalMath';
 
 const fuzzyMatch = (query) => {
   if (!query) return [];
@@ -16,17 +17,36 @@ const MealInput = ({ onAddMeal }) => {
   const [manual, setManual] = useState({ name: '', protein: '', carbs: '', fat: '', calories: '' });
   const [suggestions, setSuggestions] = useState([]);
 
+  const [error, setError] = useState('');
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError('');
+    if (Number(quantity) <= 0 || isNaN(Number(quantity))) {
+      setError('Quantity must be a positive number');
+      return;
+    }
+    const q = Number(quantity);
     if (manualMode) {
-      if (!manual.name) return;
+      if (!manual.name) {
+        setError('Please provide a name for the meal');
+        return;
+      }
+      const p = Number(manual.protein) || 0;
+      const c = Number(manual.carbs) || 0;
+      const f = Number(manual.fat) || 0;
+      const cal = Number(manual.calories) || 0;
+      if (p < 0 || c < 0 || f < 0 || cal < 0) {
+        setError('Nutrient values must be non-negative');
+        return;
+      }
       const meal = {
         name: manual.name,
-        quantity: Number(quantity) || 1,
-        protein: (Number(manual.protein) || 0) * (Number(quantity) || 1),
-        carbs: (Number(manual.carbs) || 0) * (Number(quantity) || 1),
-        fat: (Number(manual.fat) || 0) * (Number(quantity) || 1),
-        calories: (Number(manual.calories) || 0) * (Number(quantity) || 1)
+        quantity: q,
+        protein: decimal.round(decimal.mul(p, q), 1),
+        carbs: decimal.round(decimal.mul(c, q), 1),
+        fat: decimal.round(decimal.mul(f, q), 1),
+        calories: Math.round(decimal.mul(cal, q))
       };
       onAddMeal(meal);
       setManual({ name: '', protein: '', carbs: '', fat: '', calories: '' });
@@ -37,11 +57,11 @@ const MealInput = ({ onAddMeal }) => {
     if (food) {
       const meal = {
         name: food.name,
-        quantity,
-        protein: Number((food.protein * quantity).toFixed(1)),
-        carbs: Number((food.carbs * quantity).toFixed(1)),
-        fat: Number((food.fat * quantity).toFixed(1)),
-        calories: Math.round(food.calories * quantity),
+        quantity: q,
+        protein: decimal.round(decimal.mul(food.protein, q), 1),
+        carbs: decimal.round(decimal.mul(food.carbs, q), 1),
+        fat: decimal.round(decimal.mul(food.fat, q), 1),
+        calories: Math.round(decimal.mul(food.calories, q)),
       };
       onAddMeal(meal);
       setSelectedFood('');
@@ -91,13 +111,43 @@ const MealInput = ({ onAddMeal }) => {
             </label>
           </div>
           {manualMode ? (
-            <input
-              aria-label="Manual food name"
-              placeholder="Food name"
-              value={manual.name}
-              onChange={(e) => setManual(prev => ({ ...prev, name: e.target.value }))}
-              className="w-full bg-white/5 rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary"
-            />
+            <div className="space-y-3">
+              <div>
+                <label htmlFor="foodName" className="sr-only">Food Name</label>
+                <input
+                  id="foodName"
+                  aria-label="Food name"
+                  placeholder="Food name"
+                  value={manual.name}
+                  onChange={(e) => setManual(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full bg-white/5 rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label htmlFor="protein" className="sr-only">Protein (g)</label>
+                <input
+                  id="protein"
+                  type="number"
+                  aria-label="Protein"
+                  placeholder="Protein (g)"
+                  value={manual.protein}
+                  onChange={(e) => setManual(prev => ({ ...prev, protein: e.target.value }))}
+                  className="w-full bg-white/5 rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label htmlFor="calories" className="sr-only">Calories</label>
+                <input
+                  id="calories"
+                  type="number"
+                  aria-label="Calories"
+                  placeholder="Calories"
+                  value={manual.calories}
+                  onChange={(e) => setManual(prev => ({ ...prev, calories: e.target.value }))}
+                  className="w-full bg-white/5 rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
           ) : (
             <>
               <input
@@ -130,7 +180,8 @@ const MealInput = ({ onAddMeal }) => {
           />
         </div>
 
-        {showMacros && (
+      {error && <div className="text-danger text-sm">{error}</div>}
+      {showMacros && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -139,7 +190,7 @@ const MealInput = ({ onAddMeal }) => {
             {Object.entries(calculateMacros() || {}).map(([key, value]) => (
               <div key={key} className="bg-white/5 rounded-xl p-3">
                 <div className="text-sm opacity-70 capitalize">{key}</div>
-                <div className="text-lg font-bold">{Math.round(value * 10) / 10}</div>
+                <div className="text-lg font-bold">{decimal.round(value, key==='calories'?0:1)}{key==='calories'? '': ' g'}</div>
               </div>
             ))}
           </motion.div>

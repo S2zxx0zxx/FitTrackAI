@@ -1,4 +1,5 @@
 import React from 'react';
+import decimal from '../utils/decimalMath';
 
 const MealList = ({ meals = [], onDelete }) => {
   return (
@@ -15,10 +16,10 @@ const MealList = ({ meals = [], onDelete }) => {
                 <div className="text-sm opacity-70">{m.quantity} serving(s)</div>
               </div>
               <div className="text-right">
-                <div className="text-sm">Protein: {Number(m.protein).toFixed(1)} g</div>
-                <div className="text-sm">Carbs: {Number(m.carbs).toFixed(1)} g</div>
-                <div className="text-sm">Fat: {Number(m.fat).toFixed(1)} g</div>
-                <div className="text-sm">Cal: {Math.round(m.calories)}</div>
+                <div className="text-sm">Protein: {decimal.round(Number(m.protein||0),1)} g</div>
+                <div className="text-sm">Carbs: {decimal.round(Number(m.carbs||0),1)} g</div>
+                <div className="text-sm">Fat: {decimal.round(Number(m.fat||0),1)} g</div>
+                <div className="text-sm">Cal: {Math.round(Number(m.calories||0))}</div>
               </div>
               <div className="ml-4">
                 <button aria-label={`Delete ${m.name}`} onClick={() => onDelete(m.id)} className="text-danger font-bold">Delete</button>

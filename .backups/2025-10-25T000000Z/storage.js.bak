@@ -51,18 +51,16 @@ export const appendHistory = (daySummary) => {
   }
 };
 
-import decimal from './decimalMath';
-
 export const resetIfNewDay = () => {
   const daily = loadDailyData();
   const today = new Date().toISOString().slice(0, 10);
   if (daily && daily.date && daily.date !== today) {
-    // move previous day to history using decimal math
-    const totals = (daily.meals || []).reduce((acc, m) => ({
-      totalProtein: decimal.add(acc.totalProtein, Number(m.protein) || 0),
-      totalCalories: decimal.add(acc.totalCalories, Number(m.calories) || 0)
+    // move previous day to history
+    const totals = daily.meals.reduce((acc, m) => ({
+      totalProtein: acc.totalProtein + (Number(m.protein) || 0),
+      totalCalories: acc.totalCalories + (Number(m.calories) || 0)
     }), { totalProtein: 0, totalCalories: 0 });
-    appendHistory({ date: daily.date, totalProtein: totals.totalProtein, totalCalories: Math.round(totals.totalCalories), metProteinGoal: totals.totalProtein >= (daily.goals?.protein || 150) });
+    appendHistory({ date: daily.date, totalProtein: totals.totalProtein, totalCalories: totals.totalCalories, metProteinGoal: totals.totalProtein >= (daily.goals?.protein || 150) });
     // create new day preserving goals
     const next = {
       date: today,

@@ -11,7 +11,7 @@ const Dashboard = ({ dailyData }) => {
     // Animate counters
     const targetCalories = dailyData.calories || 0;
     const targetProtein = dailyData.protein || 0;
-    const targetWater = dailyData.water || 0;
+    const targetWater = dailyData.water_ml || 0;
 
     const duration = 1000;
     const steps = 60;

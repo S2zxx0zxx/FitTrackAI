@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import decimal from '../utils/decimalMath';
 
-const WaterSleep = ({ onWaterAdd, onSleepChange }) => {
+const WaterSleep = ({ onUpdate, onSleepChange, waterMl = 0 }) => {
   const [sleepHours, setSleepHours] = useState(7);
 
   const getSleepInsight = (hours) => {
@@ -20,15 +21,22 @@ const WaterSleep = ({ onWaterAdd, onSleepChange }) => {
       >
         <h2 className="text-xl font-bold mb-6">Water Intake</h2>
         <button
-          onClick={() => onWaterAdd(250)}
+          onClick={() => onUpdate(waterMl + 250)}
           className="w-full bg-primary/20 hover:bg-primary/30 text-primary font-bold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-2 transition-colors"
         >
           <span>💧</span>
           <span>Add 250ml</span>
         </button>
+          <button
+            onClick={() => onUpdate(Math.max(0, waterMl - 250))}
+            className="w-full bg-white/5 hover:bg-white/10 font-bold py-4 px-6 rounded-xl mb-4 flex items-center justify-center space-x-2 transition-colors"
+          >
+            <span>🔽</span>
+            <span>Subtract 250ml</span>
+          </button>
         <div className="text-center">
-          <div className="text-3xl font-bold mb-2">1500ml</div>
-          <div className="text-sm opacity-70">of 3000ml daily goal</div>
+          <div className="text-3xl font-bold mb-2">{waterMl}ml</div>
+          <div className="text-sm opacity-70">of 3000ml daily goal ({(waterMl / 1000).toFixed(1)} L)</div>
         </div>
       </motion.div>
 
@@ -43,6 +51,7 @@ const WaterSleep = ({ onWaterAdd, onSleepChange }) => {
             type="range"
             min="5"
             max="9"
+            step="0.5"
             value={sleepHours}
             onChange={(e) => {
               setSleepHours(Number(e.target.value));

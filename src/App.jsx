@@ -9,6 +9,7 @@ import AISuggestion from './components/AISuggestion';
 import MotivationQuote from './components/MotivationQuote';
 import Footer from './components/Footer';
 import storage from './utils/storage';
+import decimal from './utils/decimalMath';
 
 function App() {
   const [dailyData, setDailyData] = useState(() => storage.loadDailyData());
@@ -17,7 +18,10 @@ function App() {
   useEffect(() => {
     // Rollover if needed
     const rolled = storage.resetIfNewDay();
-    if (rolled) setDailyData(rolled);
+    const current = rolled || storage.loadDailyData();
+    const totals = recalcTotals(current);
+    const merged = { ...current, ...totals };
+    setDailyData(merged);
     // refresh history
     setHistory(storage.loadHistory());
     // ensure document title
@@ -25,13 +29,23 @@ function App() {
   }, []);
 
   const recalcTotals = (data) => {
-    const totals = (data.meals || []).reduce((acc, meal) => ({
-      calories: acc.calories + Number(meal.calories || 0),
-      protein: acc.protein + Number(meal.protein || 0),
-      carbs: acc.carbs + Number(meal.carbs || 0),
-      fat: acc.fat + Number(meal.fat || 0)
-    }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-    return totals;
+    const meals = data.meals || [];
+    const totals = meals.reduce((acc, meal) => {
+      return {
+        calories: decimal.add(acc.calories, Number(meal.calories || 0)),
+        protein: decimal.add(acc.protein, Number(meal.protein || 0)),
+        carbs: decimal.add(acc.carbs, Number(meal.carbs || 0)),
+        fat: decimal.add(acc.fat, Number(meal.fat || 0))
+      };
+    }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+
+    // format
+    return {
+      calories: Math.round(totals.calories),
+      protein: decimal.round(totals.protein, 1),
+      carbs: decimal.round(totals.carbs, 1),
+      fat: decimal.round(totals.fat, 1)
+    };
   };
 
   const persist = (nextDaily) => {
@@ -87,6 +101,7 @@ function App() {
           <div className="space-y-6">
             <MealList meals={dailyData.meals || []} onDelete={handleDeleteMeal} />
             <WaterSleep 
+              dailyData={dailyData}
               onWaterAdd={handleWaterAdd}
               onSleepChange={handleSleepChange}
             />
