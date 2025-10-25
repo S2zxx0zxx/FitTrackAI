@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import PropTypes from 'prop-types';
 
 const QUOTES = [
   'Discipline beats motivation — every day.',
@@ -11,22 +12,17 @@ const QUOTES = [
 const getTodayKey = () => new Date().toISOString().slice(0,10);
 
 const MotivationQuote = ({ dailyData, saveDaily }) => {
-  const [quote, setQuote] = useState('');
+  const randomQuote = useMemo(() => QUOTES[Math.floor(Math.random() * QUOTES.length)], []);
+  const initial = dailyData?.quote_of_day || randomQuote;
+  const [quote, setQuote] = useState(initial);
 
   useEffect(() => {
-    const today = getTodayKey();
-    const stored = dailyData?.quote_of_day;
-    if (stored) {
-      setQuote(stored);
-    } else {
-      const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-      setQuote(q);
-      if (saveDaily) {
-        const copy = { ...dailyData, quote_of_day: q };
-        saveDaily(copy);
-      }
+    // If there's no stored quote, persist the generated one.
+    if (!dailyData?.quote_of_day && saveDaily) {
+      saveDaily({ ...dailyData, quote_of_day: quote });
     }
-  }, []);
+    // Run when quote or storage changes
+  }, [dailyData?.quote_of_day, saveDaily, quote]);
 
   return (
     <div className="card text-center">
@@ -34,6 +30,11 @@ const MotivationQuote = ({ dailyData, saveDaily }) => {
       <p className="text-xl font-medium">{quote}</p>
     </div>
   );
+};
+
+MotivationQuote.propTypes = {
+  dailyData: PropTypes.object,
+  saveDaily: PropTypes.func,
 };
 
 export default MotivationQuote;

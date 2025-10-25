@@ -13,4 +13,9 @@ export const round = (a, decimals = 1) => {
   return new Decimal(a || 0).toDecimalPlaces(decimals).toNumber();
 };
 
-export default { add, sub, mul, div, round };
+// For UI formatting where a fixed-decimal string is desired (e.g. "191.20")
+export const roundString = (a, decimals = 1) => {
+  return new Decimal(a || 0).toDecimalPlaces(decimals).toFixed(decimals);
+};
+
+export default { add, sub, mul, div, round, roundString };

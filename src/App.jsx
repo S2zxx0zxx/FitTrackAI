@@ -15,20 +15,8 @@ function App() {
   const [dailyData, setDailyData] = useState(() => storage.loadDailyData());
   const [history, setHistory] = useState(() => storage.loadHistory());
 
-  useEffect(() => {
-    // Rollover if needed
-    const rolled = storage.resetIfNewDay();
-    const current = rolled || storage.loadDailyData();
-    const totals = recalcTotals(current);
-    const merged = { ...current, ...totals };
-    setDailyData(merged);
-    // refresh history
-    setHistory(storage.loadHistory());
-    // ensure document title
-    document.title = 'FitTrack AI — Your Smart Fitness Partner';
-  }, []);
-
-  const recalcTotals = (data) => {
+  // Rollover if needed and initialize state
+  function recalcTotals(data) {
     const meals = data.meals || [];
     const totals = meals.reduce((acc, meal) => {
       return {
@@ -46,7 +34,20 @@ function App() {
       carbs: decimal.round(totals.carbs, 1),
       fat: decimal.round(totals.fat, 1)
     };
-  };
+  }
+
+  useEffect(() => {
+    // Rollover if needed
+    const rolled = storage.resetIfNewDay();
+    const current = rolled || storage.loadDailyData();
+    const totals = recalcTotals(current);
+    const merged = { ...current, ...totals };
+    setDailyData(merged);
+    // refresh history
+    setHistory(storage.loadHistory());
+    // ensure document title
+    document.title = 'FitTrack AI — Your Smart Fitness Partner';
+  }, []);
 
   const persist = (nextDaily) => {
     storage.saveDailyData(nextDaily);
@@ -68,10 +69,7 @@ function App() {
     persist(merged);
   };
 
-  const handleWaterAdd = (amount) => {
-    const next = { ...dailyData, water_ml: (dailyData.water_ml || 0) + amount };
-    persist(next);
-  };
+  // handleWaterAdd removed: WaterSleep now uses absolute onUpdate prop from App
 
   const handleSleepChange = (hours) => {
     const next = { ...dailyData, sleep_hours: hours };
@@ -100,9 +98,12 @@ function App() {
 
           <div className="space-y-6">
             <MealList meals={dailyData.meals || []} onDelete={handleDeleteMeal} />
-            <WaterSleep 
-              dailyData={dailyData}
-              onWaterAdd={handleWaterAdd}
+            <WaterSleep
+              waterMl={dailyData.water_ml || 0}
+              onUpdate={(newWaterMl) => {
+                const next = { ...dailyData, water_ml: newWaterMl };
+                persist(next);
+              }}
               onSleepChange={handleSleepChange}
             />
           </div>

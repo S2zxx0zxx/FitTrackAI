@@ -32,4 +32,4 @@ const MealList = ({ meals = [], onDelete }) => {
   );
 };
 
-export default MealList;
+export default React.memo(MealList);

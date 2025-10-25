@@ -1,9 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import React from 'react';
 import { screen, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import MealInput from '../components/MealInput';
 import { add, round } from '../utils/decimalMath';
+import MealInput from '../components/MealInput';
 
 describe('MealInput', () => {
   const mockOnAdd = vi.fn();

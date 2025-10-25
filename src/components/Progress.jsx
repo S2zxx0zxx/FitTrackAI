@@ -2,6 +2,26 @@ import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Progress = ({ weeklyData }) => {
+  const streak = React.useMemo(() => {
+    if (!history || !history.length) return 0;
+    let count = 0;
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i].metProteinGoal) {
+        count++;
+      } else {
+        break;
+      }
+    }
+    return count;
+  }, [history]);
+
+  const nextMilestone = React.useMemo(() => {
+    if (streak < 7) return { days: 7, title: 'Week Warrior' };
+    if (streak < 30) return { days: 30, title: 'Month Master' };
+    if (streak < 100) return { days: 100, title: 'Century Champion' };
+    return { days: streak + 100, title: 'Ultimate Warrior' };
+  }, [streak]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -42,11 +62,11 @@ const Progress = ({ weeklyData }) => {
           <h2 className="text-xl font-bold">Current Streak</h2>
           <span className="text-3xl">🔥</span>
         </div>
-        <div className="text-6xl font-bold text-primary mb-2">5</div>
+        <div className="text-6xl font-bold text-primary mb-2">{streak}</div>
         <div className="text-lg opacity-70">Days in a row</div>
         <div className="mt-4 p-4 bg-white/5 rounded-xl">
           <div className="text-sm opacity-70 mb-1">Next milestone</div>
-          <div className="font-medium">7 days - "Week Warrior" 💪</div>
+          <div className="font-medium">{nextMilestone.days} days - "{nextMilestone.title}" 💪</div>
         </div>
       </motion.div>
     </motion.div>

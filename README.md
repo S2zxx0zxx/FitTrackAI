@@ -57,3 +57,26 @@ Notes
 - If you want me to push for you, provide a remote repo URL and confirm you want me to try (this will fail if credentials are required and not provided). It's safer and recommended that you push from your environment.
 
 If you want, I can also add a small `README` badge and `homepage` field in `package.json` after you share the final GitHub repo URL.
+
+## Testing
+
+Run the unit tests locally using Vitest (jsdom environment):
+
+```cmd
+npx vitest run --environment jsdom
+```
+
+Watch tests during development:
+
+```cmd
+npm run test:watch
+```
+
+Linting
+
+Auto-fix and check code style with ESLint/Prettier:
+
+```cmd
+npm run lint:fix
+npm run lint
+```

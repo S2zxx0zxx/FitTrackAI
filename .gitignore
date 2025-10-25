@@ -1,1 +1,11 @@
-node_modules
+node_modules/
+dist/
+.env
+.DS_Store
+.vscode/
+.cache/
+coverage/
+.backups/
+npm-debug.log
+package-lock.json
+.idea/

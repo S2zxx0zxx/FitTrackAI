@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest';
-import { screen, render } from '@testing-library/react';
 import storage from '../utils/storage';
 
 describe('storage', () => {

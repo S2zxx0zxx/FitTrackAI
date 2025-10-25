@@ -9,11 +9,12 @@
     "preview": "vite preview",
     "test": "vitest --environment=jsdom",
     "test:watch": "vitest --environment=jsdom --watch",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint \"src/**/*.{js,jsx}\"",
+    "lint:fix": "eslint \"src/**/*.{js,jsx}\" --fix"
   },
   "dependencies": {
     "decimal.js": "^10.6.0",
-    "firebase": "^10.5.0",
     "framer-motion": "^10.16.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -28,9 +29,14 @@
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.16",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "jsdom": "^27.0.1",
     "postcss": "^8.4.31",
-    "vite": "^4.4.5",
+    "prettier": "^3.6.2",
+    "vite": "^7.1.12",
     "vitest": "^4.0.3"
   }
 }

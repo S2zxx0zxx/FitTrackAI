@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const ProgressChart = ({ history = [] }) => {
@@ -38,4 +39,13 @@ const ProgressChart = ({ history = [] }) => {
   );
 };
 
-export default ProgressChart;
+ProgressChart.propTypes = {
+  history: PropTypes.arrayOf(PropTypes.shape({
+    date: PropTypes.string,
+    totalProtein: PropTypes.number,
+    totalCalories: PropTypes.number,
+    metProteinGoal: PropTypes.bool,
+  })),
+};
+
+export default React.memo(ProgressChart);

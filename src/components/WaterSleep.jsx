@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import decimal from '../utils/decimalMath';
 
 const WaterSleep = ({ onUpdate, onSleepChange, waterMl = 0 }) => {
@@ -74,6 +75,12 @@ const WaterSleep = ({ onUpdate, onSleepChange, waterMl = 0 }) => {
       </motion.div>
     </div>
   );
+};
+
+WaterSleep.propTypes = {
+  onUpdate: PropTypes.func.isRequired,
+  onSleepChange: PropTypes.func.isRequired,
+  waterMl: PropTypes.number,
 };
 
 export default WaterSleep;

@@ -1,9 +1,15 @@
 import { motion } from 'framer-motion';
+import PropTypes from 'prop-types';
+import { useMemo } from 'react';
+import { round } from '../utils/decimalMath';
 
 const AISuggestion = ({ dailyData }) => {
-  const goal = (dailyData?.goals?.protein) || 150;
-  const current = Number(dailyData?.protein) || 0;
-  const remaining = Math.max(0, Math.round((goal - current)*10)/10);
+  const { goal, current, remaining } = useMemo(() => {
+    const goal = (dailyData?.goals?.protein) || 150;
+    const current = Number(dailyData?.protein) || 0;
+    const remaining = Math.max(0, round((goal - current), 1));
+    return { goal, current, remaining };
+  }, [dailyData]);
 
   return (
     <motion.div
@@ -16,7 +22,7 @@ const AISuggestion = ({ dailyData }) => {
         <div>
           <h2 className="text-xl font-bold mb-2 text-primary">AI Coach Suggestion</h2>
           <p className="text-lg">
-            {remaining > 0 ? `You\'re ${remaining} g short on protein today — add paneer or eggs.` : `Great job — you've met your protein goal!`}
+            {remaining > 0 ? `You're ${remaining} g short on protein today — add paneer or eggs.` : `Great job — you've met your protein goal!`}
           </p>
         </div>
       </div>
@@ -24,27 +30,22 @@ const AISuggestion = ({ dailyData }) => {
   );
 };
 
-export const MotivationQuote = () => {
-  const quotes = [
-    "Discipline beats motivation — every day.",
-    "Small progress is still progress.",
-    "Your future self will thank you.",
-    "Make habits, not excuses.",
-    "Consistency over intensity.",
-  ];
+AISuggestion.propTypes = {
+  dailyData: PropTypes.shape({
+    protein: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    goals: PropTypes.shape({
+      protein: PropTypes.number,
+    }),
+  }),
+};
 
-  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="card text-center"
-    >
-      <div className="text-3xl mb-4">💭</div>
-      <p className="text-xl font-medium">{randomQuote}</p>
-    </motion.div>
-  );
+AISuggestion.defaultProps = {
+  dailyData: {
+    protein: 0,
+    goals: {
+      protein: 150,
+    },
+  },
 };
 
 export default AISuggestion;
