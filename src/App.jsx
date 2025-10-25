@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import MealInput from './components/MealInput';
 import MealList from './components/MealList';
@@ -8,6 +7,7 @@ import WaterSleep from './components/WaterSleep';
 import AISuggestion from './components/AISuggestion';
 import MotivationQuote from './components/MotivationQuote';
 import Footer from './components/Footer';
+import DailyStreakBar from './components/DailyStreakBar';
 import storage from './utils/storage';
 import decimal from './utils/decimalMath';
 
@@ -69,15 +69,13 @@ function App() {
     persist(merged);
   };
 
-  // handleWaterAdd removed: WaterSleep now uses absolute onUpdate prop from App
-
   const handleSleepChange = (hours) => {
     const next = { ...dailyData, sleep_hours: hours };
     persist(next);
   };
-
   return (
-    <div className="min-h-screen bg-bgDark text-textWhite pb-20">
+    <div className="min-h-screen bg-bgDark text-textWhite pb-20 pt-16">
+      <DailyStreakBar />
       <Navbar />
       
       <main className="container mx-auto px-4 pt-24 space-y-8 pb-28">
@@ -100,11 +98,16 @@ function App() {
             <MealList meals={dailyData.meals || []} onDelete={handleDeleteMeal} />
             <WaterSleep
               waterMl={dailyData.water_ml || 0}
-              onUpdate={(newWaterMl) => {
-                const next = { ...dailyData, water_ml: newWaterMl };
-                persist(next);
-              }}
-              onSleepChange={handleSleepChange}
+                weight={dailyData.weight}
+                onUpdate={(newWaterMl) => {
+                  const next = { ...dailyData, water_ml: newWaterMl };
+                  persist(next);
+                }}
+                onSleepChange={handleSleepChange}
+                onWeightUpdate={(newWeight) => {
+                  const next = { ...dailyData, weight: newWeight };
+                  persist(next);
+                }}
             />
           </div>
         </div>

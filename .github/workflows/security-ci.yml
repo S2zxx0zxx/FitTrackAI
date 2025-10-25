@@ -1,0 +1,54 @@
+name: Security CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Security audit
+      run: npm run audit:ci
+      continue-on-error: true
+
+    - name: Run ESLint
+      run: npm run lint
+
+    - name: Run tests
+      run: npm test
+
+    - name: Build
+      run: npm run build
+
+    - name: Upload lint results
+      uses: actions/upload-artifact@v3
+      with:
+        name: lint-results
+        path: reports/lint_report.txt
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: reports/test-results.json
+
+    - name: Upload bundle analysis
+      uses: actions/upload-artifact@v3
+      with:
+        name: bundle-analysis
+        path: reports/bundle-analysis.json

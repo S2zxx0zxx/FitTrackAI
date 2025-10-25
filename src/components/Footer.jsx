@@ -1,12 +1,25 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const Footer = () => {
   return (
-    <footer className="fixed bottom-0 left-0 right-0 p-4 flex items-center justify-center">
-      <div className="text-sm text-textWhite/80 py-2 px-4 rounded-2xl glow" style={{background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)'}}>
-        <span className="font-semibold" style={{color:'#00FF9D'}}>DEVELOPED BY : Satzzxzxx V</span>
-      </div>
-    </footer>
+    <motion.footer 
+      className="fixed bottom-0 w-full bg-gradient-to-r from-gray-900/80 to-gray-800/80 backdrop-blur-sm py-2 z-40"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <motion.div 
+        className="text-center text-sm text-gray-400/70"
+        whileHover={{ 
+          opacity: 1,
+          scale: 1.02,
+          transition: { duration: 0.2 }
+        }}
+      >
+        Developed by Satzzxzxx 💚
+      </motion.div>
+    </motion.footer>
   );
 };
 
