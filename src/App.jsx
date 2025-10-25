@@ -2,102 +2,98 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import MealInput from './components/MealInput';
-import Progress from './components/Progress';
+import MealList from './components/MealList';
+import ProgressChart from './components/ProgressChart';
 import WaterSleep from './components/WaterSleep';
-import AISuggestion, { MotivationQuote } from './components/AISuggestion';
-import { saveToLocalStorage, getFromLocalStorage, clearDailyData } from './utils/storage';
+import AISuggestion from './components/AISuggestion';
+import MotivationQuote from './components/MotivationQuote';
+import Footer from './components/Footer';
+import storage from './utils/storage';
 
 function App() {
-  const [dailyData, setDailyData] = useState({
-    meals: [],
-    water: 0,
-    sleep: 7,
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0
-  });
-
-  const weeklyData = [
-    { day: 'Mon', protein: 120 },
-    { day: 'Tue', protein: 145 },
-    { day: 'Wed', protein: 135 },
-    { day: 'Thu', protein: 150 },
-    { day: 'Fri', protein: 130 },
-    { day: 'Sat', protein: 0 },
-    { day: 'Sun', protein: 0 }
-  ];
+  const [dailyData, setDailyData] = useState(() => storage.loadDailyData());
+  const [history, setHistory] = useState(() => storage.loadHistory());
 
   useEffect(() => {
-    // Clear data if it's a new day
-    clearDailyData();
-
-    // Load saved data
-    const savedMeals = getFromLocalStorage('meals', []);
-    const savedWater = getFromLocalStorage('water', 0);
-    const savedSleep = getFromLocalStorage('sleep', 7);
-
-    // Calculate totals
-    const totals = savedMeals.reduce((acc, meal) => ({
-      calories: acc.calories + meal.calories,
-      protein: acc.protein + meal.protein,
-      carbs: acc.carbs + meal.carbs,
-      fat: acc.fat + meal.fat
-    }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-
-    setDailyData({
-      meals: savedMeals,
-      water: savedWater,
-      sleep: savedSleep,
-      ...totals
-    });
+    // Rollover if needed
+    const rolled = storage.resetIfNewDay();
+    if (rolled) setDailyData(rolled);
+    // refresh history
+    setHistory(storage.loadHistory());
+    // ensure document title
+    document.title = 'FitTrack AI — Your Smart Fitness Partner';
   }, []);
 
+  const recalcTotals = (data) => {
+    const totals = (data.meals || []).reduce((acc, meal) => ({
+      calories: acc.calories + Number(meal.calories || 0),
+      protein: acc.protein + Number(meal.protein || 0),
+      carbs: acc.carbs + Number(meal.carbs || 0),
+      fat: acc.fat + Number(meal.fat || 0)
+    }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+    return totals;
+  };
+
+  const persist = (nextDaily) => {
+    storage.saveDailyData(nextDaily);
+    setDailyData(nextDaily);
+  };
+
   const handleAddMeal = (meal) => {
-    const newMeals = [...dailyData.meals, meal];
-    setDailyData(prev => ({
-      ...prev,
-      meals: newMeals,
-      calories: prev.calories + meal.calories,
-      protein: prev.protein + meal.protein,
-      carbs: prev.carbs + meal.carbs,
-      fat: prev.fat + meal.fat
-    }));
-    saveToLocalStorage('meals', newMeals);
+    const newMeal = { ...meal, id: Date.now(), timestamp: new Date().toISOString() };
+    const next = { ...dailyData, meals: [...(dailyData.meals || []), newMeal] };
+    const totals = recalcTotals(next);
+    const merged = { ...next, ...totals };
+    persist(merged);
+  };
+
+  const handleDeleteMeal = (id) => {
+    const next = { ...dailyData, meals: (dailyData.meals || []).filter(m => m.id !== id) };
+    const totals = recalcTotals(next);
+    const merged = { ...next, ...totals };
+    persist(merged);
   };
 
   const handleWaterAdd = (amount) => {
-    const newWater = dailyData.water + amount;
-    setDailyData(prev => ({ ...prev, water: newWater }));
-    saveToLocalStorage('water', newWater);
+    const next = { ...dailyData, water_ml: (dailyData.water_ml || 0) + amount };
+    persist(next);
   };
 
   const handleSleepChange = (hours) => {
-    setDailyData(prev => ({ ...prev, sleep: hours }));
-    saveToLocalStorage('sleep', hours);
+    const next = { ...dailyData, sleep_hours: hours };
+    persist(next);
   };
 
   return (
     <div className="min-h-screen bg-bgDark text-textWhite pb-20">
       <Navbar />
       
-      <main className="container mx-auto px-4 pt-24 space-y-8">
+      <main className="container mx-auto px-4 pt-24 space-y-8 pb-28">
         <Dashboard dailyData={dailyData} />
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <MealInput onAddMeal={handleAddMeal} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <MealInput onAddMeal={handleAddMeal} />
+              <div className="space-y-6">
+                <AISuggestion dailyData={dailyData} />
+                <MotivationQuote dailyData={dailyData} saveDaily={storage.saveDailyData} />
+              </div>
+            </div>
+
+            <ProgressChart history={history} />
+          </div>
+
           <div className="space-y-6">
-            <AISuggestion />
-            <MotivationQuote />
+            <MealList meals={dailyData.meals || []} onDelete={handleDeleteMeal} />
+            <WaterSleep 
+              onWaterAdd={handleWaterAdd}
+              onSleepChange={handleSleepChange}
+            />
           </div>
         </div>
-        
-        <Progress weeklyData={weeklyData} />
-        <WaterSleep 
-          onWaterAdd={handleWaterAdd}
-          onSleepChange={handleSleepChange}
-        />
       </main>
+      <Footer />
     </div>
   );
 }

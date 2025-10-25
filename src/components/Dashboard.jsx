@@ -42,20 +42,20 @@ const Dashboard = ({ dailyData }) => {
       <MetricCard
         title="Calories"
         value={calories}
-        goal={2000}
+        goal={dailyData?.goals?.calories || 2000}
         unit="kcal"
       />
       <MetricCard
         title="Protein"
         value={protein}
-        goal={150}
+        goal={dailyData?.goals?.protein || 150}
         unit="g"
         isProtein
       />
       <MetricCard
         title="Water"
         value={water}
-        goal={3000}
+        goal={dailyData?.goals?.water || 3000}
         unit="ml"
       />
     </motion.div>
@@ -63,31 +63,25 @@ const Dashboard = ({ dailyData }) => {
 };
 
 const MetricCard = ({ title, value, goal, unit, isProtein }) => {
-  const progress = (value / goal) * 100;
-  const color = isProtein 
-    ? progress < 80 ? 'primary' : progress > 120 ? 'danger' : 'textWhite'
-    : 'primary';
+  const progress = goal ? Math.round((value / goal) * 100) : 0;
+  const isExcess = value > goal;
+  const barColorClass = isExcess ? 'bg-danger' : 'bg-primary';
+  const textColorClass = isExcess ? 'text-danger' : 'text-primary';
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      className="card"
-    >
+    <motion.div whileHover={{ scale: 1.02 }} className="card">
       <h3 className="text-lg font-medium mb-4">{title}</h3>
-      <div className="text-3xl font-bold mb-2" style={{ color: `var(--${color})` }}>
+      <div className={`text-3xl font-bold mb-2 ${textColorClass}`}>
         {value} <span className="text-sm opacity-70">{unit}</span>
       </div>
       <div className="h-2 bg-white/10 rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${Math.min(progress, 100)}%` }}
-          className="h-full rounded-full"
-          style={{ backgroundColor: `var(--${color})` }}
+          className={`h-full rounded-full ${barColorClass}`}
         />
       </div>
-      <div className="text-sm mt-2 opacity-70">
-        Goal: {goal} {unit}
-      </div>
+      <div className="text-sm mt-2 opacity-70">Goal: {goal} {unit}</div>
     </motion.div>
   );
 };
