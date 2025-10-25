@@ -1,12 +1,39 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import * as handpose from '@tensorflow-models/handpose';
-import * as tf from '@tensorflow/tfjs';
 
 const useGestureControls = (onGesture) => {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const modelRef = useRef(null);
   const animationFrameRef = useRef(null);
+
+  const interpretGesture = useCallback((landmarks) => {
+    const calculateDistance = (point1, point2) => {
+      return Math.sqrt(
+        Math.pow(point1[0] - point2[0], 2) +
+        Math.pow(point1[1] - point2[1], 2)
+      );
+    };
+
+    const isSwipeGesture = (landmarks) => {
+      const fingerTips = [8, 12, 16, 20];
+      const avgY = fingerTips.reduce((sum, i) => sum + landmarks[i][1], 0) / 4;
+      const isAligned = fingerTips.every(i => Math.abs(landmarks[i][1] - avgY) < 20);
+      return isAligned;
+    };
+
+    const thumb = landmarks[4];
+    const indexFinger = landmarks[8];
+    const middleFinger = landmarks[12];
+
+    const thumbToIndex = calculateDistance(thumb, indexFinger);
+    const indexToMiddle = calculateDistance(indexFinger, middleFinger);
+
+    if (thumbToIndex < 30) return 'tap';
+    if (indexToMiddle < 20) return 'pinch';
+    if (isSwipeGesture(landmarks)) return 'swipe';
+    return null;
+  }, []);
 
   useEffect(() => {
     let isActive = true;
@@ -62,49 +89,9 @@ const useGestureControls = (onGesture) => {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
-  }, [onGesture]);
+  }, [onGesture, interpretGesture]);
 
-  const interpretGesture = (landmarks) => {
-    // Calculate key points
-    const thumb = landmarks[4];
-    const indexFinger = landmarks[8];
-    const middleFinger = landmarks[12];
-    
-    // Calculate distances
-    const thumbToIndex = calculateDistance(thumb, indexFinger);
-    const indexToMiddle = calculateDistance(indexFinger, middleFinger);
-    
-    // Interpret gestures
-    if (thumbToIndex < 30) {
-      return 'tap';
-    } else if (indexToMiddle < 20) {
-      return 'pinch';
-    } else if (isSwipeGesture(landmarks)) {
-      return 'swipe';
-    }
-    
-    return null;
-  };
-
-  const calculateDistance = (point1, point2) => {
-    return Math.sqrt(
-      Math.pow(point1[0] - point2[0], 2) +
-      Math.pow(point1[1] - point2[1], 2)
-    );
-  };
-
-  const isSwipeGesture = (landmarks) => {
-    // Calculate average vertical position of fingers
-    const fingerTips = [8, 12, 16, 20];
-    const avgY = fingerTips.reduce((sum, i) => sum + landmarks[i][1], 0) / 4;
-    
-    // Check if fingers are extended and aligned horizontally
-    const isAligned = fingerTips.every(i => 
-      Math.abs(landmarks[i][1] - avgY) < 20
-    );
-    
-    return isAligned;
-  };
+  
 
   return { videoRef };
 };

@@ -98,7 +98,7 @@ describe('WaterSleep', () => {
     expect(screen.getByText(/sleep routine/i)).toBeInTheDocument();
   });
 
-  it('shows correct sleep insights', () => {
+  it('shows correct sleep insights', async () => {
     const { rerender } = render(
       <WaterSleep
         waterMl={0}
@@ -109,33 +109,40 @@ describe('WaterSleep', () => {
     );
 
     // Test different sleep durations and their insights
-    [
+    const cases = [
       { hours: 5, message: /aim for more rest/i },
       { hours: 7, message: /optimal recovery/i },
       { hours: 9, message: /great sleep duration/i },
       { hours: 8, message: /good sleep routine/i },
-    ].forEach(({ hours, message }) => {
+    ];
+
+    for (const { hours, message } of cases) {
       rerender(
         <WaterSleep
           waterMl={0}
+          sleepHours={hours}
           onUpdate={mockOnUpdate}
           onSleepChange={mockOnSleepChange}
           onWeightUpdate={mockOnWeightUpdate}
         />
       );
+
       const decrementButton = screen.getByText('-');
       const incrementButton = screen.getByText('+');
 
-      // Adjust to target hours
-      while (!screen.getByText(`${hours} hours`)) {
+      // Adjust to target hours (await clicks so DOM updates are processed)
+      // Limit iterations to avoid infinite loops in case of unexpected behavior
+      let attempts = 0;
+      while (!screen.queryByText(`${hours} hours`) && attempts < 20) {
         if (hours > 7) {
-          userEvent.click(incrementButton);
+          await userEvent.click(incrementButton);
         } else {
-          userEvent.click(decrementButton);
+          await userEvent.click(decrementButton);
         }
+        attempts += 1;
       }
 
       expect(screen.getByText(message)).toBeInTheDocument();
-    });
+    }
   });
 });

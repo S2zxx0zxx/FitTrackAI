@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 const useNotifications = () => {
   const [permission, setPermission] = useState('default');
-  const [registration, setRegistration] = useState(null);
+  const [_registration, _setRegistration] = useState(null);
 
   useEffect(() => {
     // Check if the browser supports notifications
@@ -14,7 +14,7 @@ const useNotifications = () => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/service-worker.js')
-        .then(reg => setRegistration(reg))
+        .then(reg => _setRegistration(reg))
         .catch(err => console.error('Service worker registration failed:', err));
     }
   }, []);

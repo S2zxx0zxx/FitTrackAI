@@ -1,48 +1,46 @@
-import React, { useRef, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
-import * as THREE from 'three';
+import React from 'react';
 
-function ProgressModel({ progress, goals }) {
-  const mesh = useRef();
-  
-  // Calculate completion percentage
-  const completion = Math.min((progress / goals) * 100, 100);
-  
-  // Dynamic color based on completion
-  const color = new THREE.Color().setHSL(completion / 360, 0.8, 0.5);
-
-  useEffect(() => {
-    if (mesh.current) {
-      mesh.current.rotation.y += 0.01;
-    }
-  });
+// Lightweight SVG progress visualization to replace heavy three.js component
+export default function ThreeDProgress({ progressData = { current: 0, target: 100 } }) {
+  const percent = Math.min(100, Math.round((progressData.current / progressData.target) * 100));
+  const radius = 48;
+  const stroke = 10;
+  const normalizedRadius = radius - stroke * 0.5;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const strokeDashoffset = circumference - (percent / 100) * circumference;
 
   return (
-    <mesh ref={mesh}>
-      <torusGeometry args={[1, 0.3, 16, 100]} />
-      <meshStandardMaterial
-        color={color}
-        metalness={0.8}
-        roughness={0.2}
-      />
-    </mesh>
-  );
-}
-
-export default function ThreeDProgress({ progressData }) {
-  return (
-    <div className="w-full h-64 rounded-lg overflow-hidden">
-      <Canvas camera={{ position: [0, 0, 5] }}>
-        <ambientLight intensity={0.5} />
-        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-        <ProgressModel
-          progress={progressData.current}
-          goals={progressData.target}
+    <div className="w-full h-64 rounded-lg flex items-center justify-center">
+      <svg height={radius * 2} width={radius * 2} className="transform -rotate-90">
+        <defs>
+          <linearGradient id="grad" x1="0%" x2="100%">
+            <stop offset="0%" stopColor="#06b6d4" />
+            <stop offset="100%" stopColor="#7c3aed" />
+          </linearGradient>
+        </defs>
+        <circle
+          stroke="#0f172a20"
+          fill="transparent"
+          strokeWidth={stroke}
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
         />
-        <OrbitControls enableZoom={false} />
-        <Environment preset="sunset" />
-      </Canvas>
+        <circle
+          stroke="url(#grad)"
+          fill="transparent"
+          strokeWidth={stroke}
+          strokeDasharray={`${circumference} ${circumference}`}
+          style={{ strokeDashoffset }}
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+          strokeLinecap="round"
+        />
+        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="text-sm text-gray-200" fill="#cbd5e1">
+          {percent}%
+        </text>
+      </svg>
     </div>
   );
 }

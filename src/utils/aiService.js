@@ -20,7 +20,7 @@ const calculateBMR = (weight, height, age, gender, activityLevel) => {
   return Math.round(bmr * (multipliers[activityLevel] || multipliers.moderate));
 };
 
-const generateMealPlan = (calories, preferences = {}) => {
+const generateMealPlan = (calories, _preferences = {}) => {
   const mealDistribution = {
     breakfast: 0.25,
     lunch: 0.35,
@@ -61,7 +61,7 @@ const predictProgress = (currentStats, goalStats, consistency) => {
   return Math.ceil(Math.max(...weeksToGoal));
 };
 
-const suggestWorkout = (goals, fitnessLevel, equipment = []) => {
+const suggestWorkout = (goals, fitnessLevel, _equipment = []) => {
   const workoutTypes = {
     weightLoss: {
       type: 'HIIT',
