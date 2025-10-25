@@ -1,19 +1,20 @@
+import React from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Progress = ({ weeklyData }) => {
   const streak = React.useMemo(() => {
-    if (!history || !history.length) return 0;
+    if (!weeklyData || !weeklyData.length) return 0;
     let count = 0;
-    for (let i = history.length - 1; i >= 0; i--) {
-      if (history[i].metProteinGoal) {
+    for (let i = weeklyData.length - 1; i >= 0; i--) {
+      if (weeklyData[i].metProteinGoal) {
         count++;
       } else {
         break;
       }
     }
     return count;
-  }, [history]);
+  }, [weeklyData]);
 
   const nextMilestone = React.useMemo(() => {
     if (streak < 7) return { days: 7, title: 'Week Warrior' };

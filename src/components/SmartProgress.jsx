@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Line } from 'react-chartjs-2';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { AI } from '../utils/aiService';
 
 const SmartProgress = ({ userData, history }) => {
@@ -60,28 +60,20 @@ const SmartProgress = ({ userData, history }) => {
   };
 
   const prepareChartData = (history, predictions) => {
-    const labels = [
-      ...history.map(h => new Date(h.date).toLocaleDateString()),
-      ...predictions.map(p => p.date.toLocaleDateString())
-    ];
+    // Convert to recharts-friendly data array
+    const data = [];
 
-    const datasets = [
-      {
-        label: 'Actual Progress',
-        data: [...history.map(h => h.weight), null, ...Array(predictions.length - 1).fill(null)],
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1
-      },
-      {
-        label: 'Predicted Progress',
-        data: [...Array(history.length).fill(null), ...predictions.map(p => p.weight)],
-        borderColor: 'rgb(255, 99, 132)',
-        borderDash: [5, 5],
-        tension: 0.1
-      }
-    ];
+    const historyLabels = history.map(h => ({ date: new Date(h.date), weight: h.weight }));
+    const predictionLabels = predictions.map(p => ({ date: new Date(p.date), weight: p.weight }));
 
-    return { labels, datasets };
+    // Merge by index: keep chronological order
+    const maxLen = Math.max(historyLabels.length, predictionLabels.length + historyLabels.length);
+    // push history entries first
+    historyLabels.forEach(h => data.push({ date: h.date.toLocaleDateString(), actual: h.weight, predicted: null }));
+    // then predictions
+    predictionLabels.forEach(p => data.push({ date: p.date.toLocaleDateString(), actual: null, predicted: p.weight }));
+
+    return data;
   };
 
   if (!chartData) return null;
@@ -96,30 +88,15 @@ const SmartProgress = ({ userData, history }) => {
       
       {/* Progress Chart */}
       <div className="h-64 mb-6">
-        <Line 
-          data={chartData}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-              intersect: false,
-              mode: 'index'
-            },
-            plugins: {
-              tooltip: {
-                enabled: true
-              },
-              legend: {
-                display: true
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: false
-              }
-            }
-          }}
-        />
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData}>
+            <XAxis dataKey="date" stroke="#94a3b8" />
+            <YAxis stroke="#94a3b8" />
+            <Tooltip />
+            <Line type="monotone" dataKey="actual" stroke="#4BC0C0" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="predicted" stroke="#FF6384" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Predictions and Insights */}
