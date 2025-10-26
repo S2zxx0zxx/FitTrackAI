@@ -105,6 +105,41 @@ To try the demo locally:
 
 Run `npm run build:analyze` to generate `dist/bundle-report.html` which visualizes the bundle and helps identify large modules.
 
+## Deploying & launching
+
+Automatic deployments:
+
+- GitHub Pages: a workflow is configured to deploy the built `dist/` directory to the `gh-pages` branch on pushes to `main` and `feat/three-upgrade`. After the workflow runs, check the Actions logs and the repository Pages settings to find the published URL.
+- Vercel: the project includes `vercel.json` for Vite. If you'd prefer Vercel, connect the repository at https://vercel.com/new and Vercel will auto-deploy branches.
+
+Manual local preview:
+
+1. Install dependencies:
+
+```cmd
+npm install
+```
+
+2. Start dev server:
+
+```cmd
+npm run dev
+```
+
+3. Or build and preview the production build:
+
+```cmd
+npm run build
+npx serve -s dist -l 3000
+```
+
+Open http://localhost:3000 to preview the built site.
+
+Open PR: I pushed the working branch `feat/three-upgrade`. Create a PR at:
+
+https://github.com/S2zxx0zxx/FitTrackAI/pull/new/feat/three-upgrade
+
+
 This repository contains a Vite + React project. The project builds a production-ready static site in the `dist/` folder.
 
 What I prepared for you
