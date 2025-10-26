@@ -1,12 +1,25 @@
-# AI & ML Notes
+## AI Demo
 
-This project contains scaffolding for browser-based AI features using TensorFlow.js and helper utilities under `src/utils/ai`.
+This project includes a small lazy-loaded AI image demo that uses MobileNet via TensorFlow.js. The demo is intentionally lazy-loaded so the main application bundle stays small.
+
+Files:
+
+- `src/components/AIImageDemo.jsx` — UI component that lets users upload an image and classify it using MobileNet. The model is loaded on demand.
+- `src/utils/ai/imageClassifier.js` — wrapper that dynamically imports `@tensorflow/tfjs` and `@tensorflow-models/mobilenet` and exposes `loadMobileNet` and `classifyImage`.
+
+Testing:
+
+- The demo includes a test that mocks the `imageClassifier` module so CI doesn't need to download models or run TensorFlow.
+
+Licensing / model origin:
+
+- MobileNet is provided by `@tensorflow-models/mobilenet`. Check their repository and license for details.
+
+How to use locally:
+
+1. Run `npm install` to fetch the model package.
+2. Start the dev server and open the AI demo UI somewhere in the app (you can import the component in a page).
 
 Notes:
-- Models used in development are expected to be loaded lazily (dynamic import) to avoid increasing initial bundle size.
-- Some model dependencies were added (e.g., `@tensorflow/tfjs`, `@tensorflow-models/pose-detection`). In production, consider serving models from a CDN or using hosted model endpoints to reduce client load.
-- The functions in `src/utils/ai` are mostly small helpers and mock implementations; connect them to real models and validate input shapes when integrating.
 
-Security and performance:
-- Heavy model libraries (tfjs) should be loaded only for users who open AI features.
-- Consider quantized or WASM builds for performance on low-end devices.
+- For production use, prefer to run inference on-device and be mindful of privacy — do not upload user images unless you have consent and a secure backend.
