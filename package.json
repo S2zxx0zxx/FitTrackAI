@@ -11,7 +11,10 @@
     "test:watch": "vitest --environment=jsdom --watch",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint \"src/**/*.{js,jsx}\"",
-    "lint:fix": "eslint \"src/**/*.{js,jsx}\" --fix"
+    "lint:fix": "eslint \"src/**/*.{js,jsx}\" --fix",
+    "build:analyze": "set ANALYZE=true&&vite build",
+    "playwright:install": "npx playwright install",
+    "test:e2e": "npx playwright test"
   },
   "dependencies": {
   "@mediapipe/hands": "^0.4.1675469240",
@@ -52,6 +55,8 @@
     "rollup-plugin-visualizer": "^6.0.5",
     "vite": "^7.1.12",
     "vite-plugin-compression": "^0.5.1",
-    "vitest": "^4.0.3"
+    "vitest": "^4.0.3",
+    "playwright": "^1.42.0"
   }
+  
 }

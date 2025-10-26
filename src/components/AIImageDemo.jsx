@@ -56,7 +56,8 @@ export default function AIImageDemo() {
       <h3 className="text-lg font-semibold mb-3">AI Image Demo (lazy-loaded)</h3>
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <input type="file" accept="image/*" onChange={handleFile} />
+          <label htmlFor="ai-image-input" className="sr-only">Choose image to classify</label>
+          <input id="ai-image-input" type="file" accept="image/*" onChange={handleFile} aria-label="Choose image to classify" />
           <button className="btn" onClick={handleLoadModel} disabled={loading || modelReady}>
             {modelReady ? 'Model loaded' : loading ? 'Loading...' : 'Load model'}
           </button>

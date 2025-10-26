@@ -91,6 +91,20 @@ Which of those should I do next?
 
 FitTrack AI — Apple-style dark theme Fitness & Nutrition Web App
 
+## AI demo
+
+There's a lazy-loaded MobileNet-based image classification demo at `src/components/AIImageDemo.jsx`.
+
+To try the demo locally:
+
+1. npm install
+2. npm run dev
+3. Open the dashboard page; the demo is included in the dashboard view and will lazy-load the model when you click "Load model".
+
+## Bundle analysis
+
+Run `npm run build:analyze` to generate `dist/bundle-report.html` which visualizes the bundle and helps identify large modules.
+
 This repository contains a Vite + React project. The project builds a production-ready static site in the `dist/` folder.
 
 What I prepared for you

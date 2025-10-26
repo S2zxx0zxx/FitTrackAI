@@ -17,5 +17,15 @@ jobs:
           node-version: '18'
       - name: Install dependencies
         run: npm ci
+      - name: Run lint
+        run: npm run lint
       - name: Run tests
-        run: npx vitest run --environment jsdom
+        run: npx vitest run --environment jsdom --reporter=dot
+      - name: Build
+        run: npm run build
+      - name: Upload bundle report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-report
+          path: dist/bundle-report.html

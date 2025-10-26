@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import TelemetryOptIn from './TelemetryOptIn';
 
 const Footer = () => {
   return (
@@ -9,16 +10,19 @@ const Footer = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <motion.div 
-        className="text-center text-sm text-gray-400/70"
-        whileHover={{ 
-          opacity: 1,
-          scale: 1.02,
-          transition: { duration: 0.2 }
-        }}
-      >
-        Developed by Satzzxzxx 💚
-      </motion.div>
+      <div className="max-w-5xl mx-auto flex items-center justify-between px-4">
+        <motion.div 
+          className="text-sm text-gray-400/70"
+          whileHover={{ 
+            opacity: 1,
+            scale: 1.02,
+            transition: { duration: 0.2 }
+          }}
+        >
+          Developed by Satzzxzxx 💚
+        </motion.div>
+        <TelemetryOptIn />
+      </div>
     </motion.footer>
   );
 };

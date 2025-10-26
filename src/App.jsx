@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import Dashboard from './components/Dashboard';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+const Dashboard = lazy(() => import('./components/Dashboard'));
 import MealInput from './components/MealInput';
-import MealList from './components/MealList';
-import ProgressChart from './components/ProgressChart';
+const MealList = lazy(() => import('./components/MealList'));
+const ProgressChart = lazy(() => import('./components/ProgressChart'));
 import WaterSleep from './components/WaterSleep';
-import AISuggestion from './components/AISuggestion';
+const AISuggestion = lazy(() => import('./components/AISuggestion'));
 import MotivationQuote from './components/MotivationQuote';
-import Footer from './components/Footer';
-import DailyStreakBar from './components/DailyStreakBar';
+const Footer = lazy(() => import('./components/Footer'));
+const DailyStreakBar = lazy(() => import('./components/DailyStreakBar'));
+const Navbar = lazy(() => import('./components/Navbar'));
 import storage from './utils/storage';
 import decimal from './utils/decimalMath';
 
@@ -75,27 +76,39 @@ function App() {
   };
   return (
     <div className="min-h-screen bg-bgDark text-textWhite pb-20 pt-16">
-      <DailyStreakBar />
-      <Navbar />
+      <Suspense fallback={null}>
+        <DailyStreakBar />
+      </Suspense>
+      <Suspense fallback={null}>
+        <Navbar />
+      </Suspense>
       
       <main className="container mx-auto px-4 pt-24 space-y-8 pb-28">
-        <Dashboard dailyData={dailyData} />
+        <Suspense fallback={<div className="card p-4">Loading dashboard...</div>}>
+          <Dashboard dailyData={dailyData} />
+        </Suspense>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <MealInput onAddMeal={handleAddMeal} />
               <div className="space-y-6">
-                <AISuggestion dailyData={dailyData} />
+                <Suspense fallback={<div className="p-4">Loading suggestions...</div>}>
+                  <AISuggestion dailyData={dailyData} />
+                </Suspense>
                 <MotivationQuote dailyData={dailyData} saveDaily={storage.saveDailyData} />
               </div>
             </div>
 
-            <ProgressChart history={history} />
+            <Suspense fallback={<div className="card p-4">Loading chart...</div>}>
+              <ProgressChart history={history} />
+            </Suspense>
           </div>
 
           <div className="space-y-6">
-            <MealList meals={dailyData.meals || []} onDelete={handleDeleteMeal} />
+            <Suspense fallback={<div className="card p-4">Loading meals...</div>}>
+              <MealList meals={dailyData.meals || []} onDelete={handleDeleteMeal} />
+            </Suspense>
             <WaterSleep
               waterMl={dailyData.water_ml || 0}
                 weight={dailyData.weight}
@@ -112,7 +125,9 @@ function App() {
           </div>
         </div>
       </main>
-      <Footer />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }
