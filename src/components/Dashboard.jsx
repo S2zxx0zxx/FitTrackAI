@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import AIImageDemo from './AIImageDemo';
 
 const Dashboard = ({ dailyData }) => {
   const [calories, setCalories] = useState(0);
@@ -87,3 +88,13 @@ const MetricCard = ({ title, value, goal, unit, isProtein }) => {
 };
 
 export default Dashboard;
+
+// Add demo below the dashboard summary — exported separately so pages can render it as needed
+export const DashboardWithDemo = ({ dailyData }) => (
+  <>
+    <Dashboard dailyData={dailyData} />
+    <div className="mt-8">
+      <AIImageDemo />
+    </div>
+  </>
+);
